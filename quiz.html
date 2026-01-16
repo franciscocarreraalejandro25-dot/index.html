@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>🌍 Quiz Población: LIBERTAD ABSOLUTA</title>
+<style>
+    :root {
+        --bg: #d6d6d6; --blanco: #ffffff; --sombra: #b8b8b8; --brillo: #f5f5f5;
+        --facil: #39ff14; --normal: #ffae00; --dificil: #ff8080; --pesadilla: #ff0000;
+    }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #222; overflow: hidden; }
+    
+    .corner-video {
+        position: fixed; bottom: 15px; left: 15px; background: #1a1a1a; color: gold; 
+        padding: 10px; border-radius: 12px; font-size: 0.8em; text-decoration: none; 
+        border: 2px solid gold; z-index: 9999; font-weight: bold;
+    }
+
+    .stats { background: var(--bg); padding: 15px; box-shadow: 0 4px 10px var(--sombra); display: flex; justify-content: space-around; font-weight: bold; position: sticky; top: 0; z-index: 100; }
+    .container { max-width: 800px; margin: 20px auto; padding: 20px; text-align: center; }
+    .card { background: var(--bg); padding: 30px; border-radius: 35px; box-shadow: 18px 18px 36px var(--sombra), -18px -18px 36px var(--brillo); display: none; }
+    
+    .btn { padding: 15px 25px; border: none; border-radius: 20px; background: var(--blanco); cursor: pointer; font-weight: bold; box-shadow: 6px 6px 12px var(--sombra), -6px -6px 12px var(--brillo); margin: 8px; transition: 0.2s; }
+    .btn:active { box-shadow: inset 4px 4px 8px var(--sombra); transform: scale(0.98); }
+
+    .opcion { background: var(--blanco); padding: 15px; margin: 10px 0; border-radius: 15px; cursor: pointer; font-weight: bold; box-shadow: 4px 4px 8px var(--sombra); border: 3px solid transparent; }
+    .escenario { height: 300px; background: #eee; border-radius: 25px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: inset 5px 5px 10px var(--sombra); cursor: pointer; }
+    #avatar { font-size: 100px; transition: 0.1s; user-select: none; }
+    
+    .txt-flot { position: absolute; color: #0084ff; font-weight: 900; font-size: 28px; animation: subir 0.6s forwards; pointer-events: none; }
+    @keyframes subir { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-80px); } }
+    
+    .timer-cont { width: 100%; height: 12px; background: #ccc; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+    #timer-bar { width: 100%; height: 100%; background: var(--pesadilla); transition: 0.1s linear; }
+
+    #pantalla-final { color: #cc0000; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<a href="https://www.youtube.com/watch?v=99I8tt5ZwKE" target="_blank" class="corner-video">🎬 DOCUMENTAL (ES)</a>
+
+<div class="stats">
+    <span>💎 <span id="pts">0</span></span>
+    <span>🐾 <span id="pet-count">0/5</span></span>
+    <span>💣<span id="inv-b">0</span> ⏰<span id="inv-r">0</span> 🛡️<span id="inv-e">❌</span></span>
+</div>
+
+<div class="container">
+    <div id="inicio" class="card" style="display: block;">
+        <h1>QUIZ GEOGRÁFICO 🌍</h1>
+        <button class="btn" id="dif-btn" onclick="ciclarDificultad()" style="background:var(--facil); width: 80%;">MODO: FÁCIL (10 Qs)</button>
+        <br><br>
+        <button class="btn" onclick="comenzar()" style="background:#000; color:#fff; width: 80%;">▶️ EMPEZAR</button>
+        <hr>
+        <button class="btn" onclick="mostrar('tienda')">🛒 TIENDA</button>
+        <button class="btn" onclick="mostrar('casa')">🏠 MI CASA</button>
+    </div>
+
+    <div id="juego" class="card">
+        <h3 id="q-num"></h3>
+        <div class="timer-cont"><div id="timer-bar"></div></div>
+        <div id="pregunta-txt" style="font-size: 1.3em; font-weight: bold; margin-bottom: 20px;"></div>
+        <div id="opciones"></div>
+        <hr>
+        <button class="btn" onclick="usarBomba()">💣 BOMBA</button>
+        <button class="btn" onclick="usarReloj()">⏰ RELOJ</button>
+    </div>
+
+    <div id="tienda" class="card">
+        <h2>TIENDA COMPLETA</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button class="btn" onclick="comprarItem('bomba', 50)">💣 Bomba (50)</button>
+            <button class="btn" onclick="comprarItem('reloj', 50)">⏰ Reloj (50)</button>
+            <button class="btn" onclick="comprarItem('escudo', 500)">🛡️ Escudo (500)</button>
+            <button class="btn" onclick="comprar('Perro','🐶',250)">🐶 Perro (250)</button>
+            <button class="btn" onclick="comprar('Gato','🐱',250)">🐱 Gato (250)</button>
+            <button class="btn" onclick="comprar('Dino','🦖',1500)">🦖 Dino (1500)</button>
+            <button class="btn" onclick="comprar('Alien','👽',3000)">👽 Alien (3000)</button>
+        </div>
+        <br><button class="btn" onclick="mostrar('inicio')">⬅️ VOLVER</button>
+    </div>
+
+    <div id="casa" class="card">
+        <h2 id="pet-name">MI CASA</h2>
+        <div class="escenario" onclick="acariciar(event)"><div id="avatar">❓</div></div>
+        <button class="btn" onclick="cambiarPet()">🔄 CAMBIAR</button>
+        <button class="btn" onclick="mostrar('inicio')">⬅️ VOLVER</button>
+    </div>
+
+    <div id="final" class="card">
+        <h1 id="f-msg"></h1>
+        <h2 id="f-pts"></h2>
+        <button class="btn" onclick="mostrar('inicio')">REINTENTAR</button>
+    </div>
+</div>
+
+<script>
+let pts = 0; let qIdx = 0; let meta = 10; let modo = 'facil'; let timer; let tiempo;
+let misPets = []; let pIdx = 0;
+let inv = { bomba: 0, reloj: 0, escudo: false };
+
+const banco = [
+    {q:"¿País más poblado?", o:["India","China","EEUU"], c:0},
+    {q:"¿Qué mide la densidad?", o:["Hab/km²","Gente","Área"], c:0},
+    {q:"¿Ciudad más poblada?", o:["Tokio","CDMX","Pekín"], c:0},
+    {q:"¿Continente más poblado?", o:["Asia","Europa","África"], c:0}
+];
+
+function ciclarDificultad() {
+    const btn = document.getElementById('dif-btn');
+    if(modo=='facil'){ modo='normal'; meta=20; btn.style.background='var(--normal)'; btn.textContent="MODO: NORMAL (20 Qs)"; }
+    else if(modo=='normal'){ modo='dificil'; meta=40; btn.style.background='var(--dificil)'; btn.textContent="MODO: DIFÍCIL (40 Qs)"; }
+    else if(modo=='dificil'){ modo='pesadilla'; meta=100; btn.style.background='var(--pesadilla)'; btn.textContent="MODO: PESADILLA (100 Qs)"; }
+    else { modo='facil'; meta=10; btn.style.background='var(--facil)'; btn.textContent="MODO: FÁCIL (10 Qs)"; }
+}
+
+function comenzar() { qIdx = 0; mostrar('juego'); cargar(); }
+
+function cargar() {
+    clearInterval(timer);
+    if(qIdx >= meta) { terminar("¡VICTORIA ABSOLUTA! 🏆"); return; }
+    let p = banco[Math.floor(Math.random()*banco.length)];
+    document.getElementById('q-num').textContent = `Pregunta ${qIdx+1}/${meta}`;
+    document.getElementById('pregunta-txt').textContent = p.q;
+    let box = document.getElementById('opciones'); box.innerHTML = "";
+    p.o.forEach((t, i) => {
+        let d = document.createElement('div'); d.className = 'opcion'; d.textContent = t;
+        d.onclick = () => { if(i==p.c) { pts+=100; qIdx++; upd(); cargar(); } else { fallar(); }};
+        box.appendChild(d);
+    });
+    tiempo = {facil:20, normal:15, dificil:10, pesadilla:5}[modo];
+    let max = tiempo;
+    timer = setInterval(() => { tiempo -= 0.1; document.getElementById('timer-bar').style.width = (tiempo/max)*100 + "%"; if(tiempo <= 0) fallar(); }, 100);
+}
+
+function fallar() {
+    clearInterval(timer);
+    if(inv.escudo) { inv.escudo = false; upd(); cargar(); }
+    else { terminar("GAME OVER 💀"); }
+}
+
+function terminar(msg) {
+    document.getElementById('f-msg').textContent = msg;
+    document.getElementById('f-pts').textContent = "Puntos: " + pts;
+    mostrar('final');
+}
+
+function comprarItem(it, p) { if(pts>=p) { pts-=p; if(it=='escudo') inv.escudo=true; else inv[it]++; upd(); } }
+function usarBomba() { if(inv.bomba>0) { inv.bomba--; let ops = document.querySelectorAll('.opcion'); ops[1].style.opacity='0.1'; upd(); } }
+function usarReloj() { if(inv.reloj>0) { inv.reloj--; tiempo+=10; upd(); } }
+function comprar(t, e, p) { if(pts>=p && misPets.length<5) { pts-=p; misPets.push({e, t}); upd(); } }
+
+function mostrar(id) {
+    document.querySelectorAll('.card').forEach(c => c.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
+    if(id=='casa' && misPets.length>0) { document.getElementById('avatar').textContent = misPets[pIdx].e; document.getElementById('pet-name').textContent = "CASA DE " + misPets[pIdx].t; }
+}
+
+function cambiarPet() { if(misPets.length > 0) { pIdx = (pIdx+1)%misPets.length; mostrar('casa'); }}
+
+function acariciar(e) {
+    if(misPets.length > 0) {
+        pts += 67; upd();
+        let t = document.createElement('div'); t.className = 'txt-flot';
+        t.textContent = "+67"; t.style.left = e.clientX + "px"; t.style.top = e.clientY + "px";
+        document.body.appendChild(t); setTimeout(()=>t.remove(), 600);
+        document.getElementById('avatar').style.transform = "scale(1.2)";
+        setTimeout(()=>document.getElementById('avatar').style.transform = "scale(1)", 100);
+    }
+}
+
+function upd() {
+    document.getElementById('pts').textContent = pts;
+    document.getElementById('pet-count').textContent = misPets.length + "/5";
+    document.getElementById('inv-b').textContent = inv.bomba;
+    document.getElementById('inv-r').textContent = inv.reloj;
+    document.getElementById('inv-e').textContent = inv.escudo ? "✅" : "❌";
+}
+</script>
+</body>
+</html>
